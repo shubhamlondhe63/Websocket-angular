@@ -1,13 +1,28 @@
-<p>chat works!</p>
-<!-- src/app/chat/chat.component.html -->
-<div>
-    <h2>WebSocket Chat</h2>
-    <div>
-      <input [(ngModel)]="message" placeholder="Type a message" />
-      <button (click)="sendMessage()">Send</button>
+<div class="chat-wrapper">
+  <div class="chat-header">
+    Chat Application
+  </div>
+  <div class="chat-container">
+    <div class="user-list">
+      <div class="user" *ngFor="let user of users">
+        {{ user.name }}
+      </div>
     </div>
-    <div *ngFor="let msg of messages">
-      {{ msg }}
+    <div class="chat-messages">
+      <ng-container *ngFor="let msg of messages">
+        <div [ngClass]="{ 'message': true, 'self': msg.self }" [@messageAnimation]>
+          <div class="message-content">
+            {{ msg.text }}
+          </div>
+        </div>
+      </ng-container>
+      <div class="typing-indicator" *ngIf="typingMessage">
+        {{ typingMessage }}
+      </div>
     </div>
   </div>
-  
+  <div class="input-wrapper">
+    <input class="chat-input" [(ngModel)]="message" placeholder="Type a message" (keyup.enter)="sendMessage()" (input)="onTyping()" />
+    <button class="send-button" (click)="sendMessage()">Send</button>
+  </div>
+</div>

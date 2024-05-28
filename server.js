@@ -1,19 +1,40 @@
-// server.js
-const WebSocket = require('ws');
+const express = require('express');
+const http = require('http');
+const socketIo = require('socket.io');
+const cors = require('cors');
 
-const server = new WebSocket.Server({ port: 8080 });
+const app = express();
+app.use(cors());
 
-server.on('connection', ws => {
-  console.log('New client connected');
+const server = http.createServer(app);
+const io = socketIo(server, {
+  cors: {
+    origin: 'http://localhost:4200',
+    methods: ['GET', 'POST']
+  }
+});
 
-  ws.on('message', message => {
-    console.log(`Received message => ${message}`);
-    ws.send(`You said: ${message}`);
+io.on('connection', (socket) => {
+  console.log('New client connected', socket.id);
+
+  socket.on('message', (message) => {
+    // Emit the message to all clients except the sender
+    socket.broadcast.emit('message', { text: message.text, self: message.self, id: socket.id });
   });
 
-  ws.on('close', () => {
-    console.log('Client disconnected');
+  socket.on('typing', (typingMessage) => {
+    socket.broadcast.emit('typing', typingMessage);
+    console.log('typing');
+  });
+
+  socket.on('stopTyping', () => {
+    socket.broadcast.emit('stopTyping');
+  });
+
+  socket.on('disconnect', () => {
+    console.log('Client disconnected', socket.id);
   });
 });
 
-console.log('WebSocket server is running on ws://localhost:8080');
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
