@@ -73,7 +73,6 @@ body {
     position: relative;
     animation: fadeIn 0.3s;
     word-wrap: break-word;
-    /* Ensure long messages wrap */
     text-align: start;
 }
 
